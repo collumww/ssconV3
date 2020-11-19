@@ -1,7 +1,7 @@
 # ssconV3
 sscon - a console companion to ss
 
-See ssV3 for the information on this. 
+See ssV3 for more complete informataion on ss and sscon. 
 
 sscon would be used something like this at a powershell prompt:
 
