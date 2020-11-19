@@ -140,9 +140,14 @@ namespace ss {
                         }
                     else {
                         for (SList f = t.fs; f != null; f = f.nxt) {
-                            ts = FindText(false, f.s, true, true);
+                            ts = FindText(true, f.s, true, false);
                             if (ts == null) throw new ssException("warning: no such file '" + f.s + "'");
-                            else DeleteText(ts.t, true);
+                            else {
+                                while (ts != null) {
+                                    DeleteText(ts.t, true);
+                                    ts = ts.nxt;
+                                    }
+                                }
                             }
                         }
                     break;
@@ -152,7 +157,7 @@ namespace ss {
                 case 'b':
                     bool fnd = false;
                     for (SList f = t.fs; f != null; f = f.nxt) {
-                        ts = FindText(false, f.s, true, true);
+                        ts = FindText(true, f.s, true, true);
                         if (ts != null) { fnd = true; txt = ts.t; break; }
                         }
                     if (!fnd) throw new ssException("not in menu: \"" + SListJoin(t.fs) + "\"");
@@ -331,8 +336,7 @@ namespace ss {
                     lt = lt.nxt;
                     }
                 }
-            //if (unique && l.nxt != null && l.nxt.nxt != null) throw new ssException("non-unique match for \"" + pat + "\"");
-            //if (matching && l.nxt == null) throw new ssException("file search");
+            if (unique && l.nxt != null && l.nxt.nxt != null) throw new ssException("non-unique match for \"" + pat + "\"");
             return l.nxt;
             }
 
@@ -358,7 +362,6 @@ namespace ss {
             if (a.fnm != null) {
                 TList fs = FindText(true, a.fnm, true, true);
                 if (fs == null) throw new ssException("file search");
-                if (fs.nxt != null) throw new ssException("non-unique match for \"" + a.fnm + "\"");
                 atxt = fs.t;
                 }
             switch (a.op) {
@@ -547,31 +550,34 @@ namespace ss {
 
         private string ShellCmd(string cmd, string inp) {
             string s = "";
+            string tfnm = null;
             try {
                 ProcessStartInfo psi = new ProcessStartInfo();
                 psi.FileName = defs.cmd;
-                psi.Arguments = string.Format(defs.cmdArgs, cmd);
+                psi.Arguments = defs.cmdArgs;
                 psi.UseShellExecute = false;
                 psi.RedirectStandardOutput = true;
                 psi.RedirectStandardError = true;
-                if (inp != null) {
-                    psi.RedirectStandardInput = true;
-                    }
+                psi.RedirectStandardInput = true;
                 psi.WindowStyle = ProcessWindowStyle.Hidden;
                 psi.CreateNoWindow = true;
+                if (inp != null) {
+                    tfnm = Path.GetTempFileName();
+                    WinWrite(tfnm, inp, txt.encoding);
+                    cmd = string.Format("gc {0} | {1}", tfnm, cmd);
+                    }
                 Process p = new Process();
                 p.StartInfo = psi;
                 p.Start();
-                if (inp != null) {
-                    p.StandardInput.Write(inp);
-                    p.StandardInput.Close();
-                   }
+                p.StandardInput.WriteLine(cmd);
+                p.StandardInput.Close();
                 p.WaitForExit(1000);
                 s = p.StandardOutput.ReadToEnd();
                 s += "\r\n" + p.StandardError.ReadToEnd();
                 int ec = p.ExitCode;
                 p.Close();
                 p.Dispose();
+                if (inp != null) { File.Delete(tfnm); }
                 if (ec != 0) throw new ssException("non-zero exit code: " + p.ExitCode.ToString());
                 }
             catch (Exception e) {
