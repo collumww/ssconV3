@@ -48,6 +48,7 @@
     <Compile Include="ssAddress.cs" />
     <Compile Include="ssCursor.cs" />
     <Compile Include="ssDefaults.cs" />
+    <Compile Include="ssDispLine.cs" />
     <Compile Include="ssEd.cs" />
     <Compile Include="ssEdEdit.cs" />
     <Compile Include="ssEdExec.cs" />

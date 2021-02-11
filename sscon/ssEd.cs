@@ -164,7 +164,7 @@ namespace ss {
             prvtxt = txt;
             /*/win remove for non-windowed version
             if (t.Frm != null) {
-                if (t != log) t.Activate();
+                t.Activate();
                 }
             else
             // remove for non-windowed version */
@@ -230,9 +230,9 @@ namespace ss {
 
         public void Msg(string s) {
             /*/win Remove for non-windowed version
-            log.Frm.CmdCursorToFileEnd();
+            log.Frm.CmdCursorToEOF();
             log.Frm.Insert(s);
-            log.Frm.CmdCursorToFileEnd();
+            log.Frm.CmdCursorToEOF();
             // Remove for non-windowed version */
             //nonwin Remove for windowed version 
             Console.Write(s);

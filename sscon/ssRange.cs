@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ss {
+namespace ss { // what?
     public struct ssRange {
         public ssRange(int left, int right) {
             l = left;
@@ -46,7 +46,7 @@ namespace ss {
             }
 
         public bool Contains(int i) {
-            return i >= l && i <= r;
+            return i >= l && i < r;
             }
 
         public bool Empty {

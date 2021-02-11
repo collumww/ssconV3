@@ -26,6 +26,7 @@ namespace ss {
             }
 
         void xCmd(CTree t) {
+            ssRange levdot =  new ssRange();
             if (t == null) return;
             ssAddress ad = xAddr(t.ad);
             ssAddress a = xAddr(t.a);
@@ -37,6 +38,7 @@ namespace ss {
                 // remove for non-windowed version */
                 txt.dot = a.rng;
                 }
+            if (txt != null) levdot = txt.dot;
             switch (t.cmd) {
                 case 'p':
                     Print();
@@ -313,6 +315,7 @@ namespace ss {
                     throw new ssException("unknown command");
                 }
             if (a != null) PostEdDot();
+            if (txt != null) txt.dot = levdot;
             xCmd(t.nxt);
             }
 
@@ -330,7 +333,7 @@ namespace ss {
             TList lt = l;
             if (pat == null) return new TList(txt, txt.dot, null);
             for (ssText t = txts; t != null; t = t.Nxt) {
-                bool m = rgx ? Regex.IsMatch(t.MenuLine(), pat, defs.senseCase ? RegexOptions.None : RegexOptions.IgnoreCase) : pat == t.FileName();
+                bool m = rgx ? Regex.IsMatch(t.MenuLine(), pat, defs.senseCase? RegexOptions.None : RegexOptions.IgnoreCase) : pat == t.FileName();
                 if (matching && m || !matching && !m) {
                     lt.nxt = new TList(t, t.dot, null);
                     lt = lt.nxt;
