@@ -73,6 +73,7 @@ namespace ss {
                     if (t.sub.nxt.cmd == noCmd) t.sub.nxt.cmd = 'p';
                     RegexOptions opts = RegexOptions.Multiline;
                     if (!defs.senseCase) opts |= RegexOptions.IgnoreCase;
+                    lastPat = t.s;
                     MatchCollection ms = Regex.Matches(txt.ToString(), t.s, opts);
                     ssRange strt = txt.dot;
                     foreach (Match m in ms) {
@@ -85,6 +86,7 @@ namespace ss {
                     if (t.sub.nxt.cmd == noCmd) t.sub.nxt.cmd = 'p';
                     opts = RegexOptions.Multiline;
                     if (!defs.senseCase) opts |= RegexOptions.IgnoreCase;
+                    lastPat = t.s;
                     ms = Regex.Matches(txt.ToString(), t.s, opts);
                     strt = txt.dot;
                     int l = strt.l;
@@ -100,6 +102,7 @@ namespace ss {
                     break;
                 case 'X':
                 case 'Y':
+                    lastPat = t.s;
                     t.txts = FindText(true, t.s, t.cmd == 'X', false);
                     if (t.txts == null) throw new ssException("file search");
                     for (TList tl = t.txts; tl != null; tl = tl.nxt) {
@@ -110,18 +113,21 @@ namespace ss {
                 case 'g':
                     opts = RegexOptions.Multiline;
                     if (!defs.senseCase) opts |= RegexOptions.IgnoreCase;
+                    lastPat = t.s;
                     ms = Regex.Matches(txt.ToString(), t.s, opts);
                     if (ms.Count > 0) xCmd(t.sub);
                     break;
                 case 'v':
                     opts = RegexOptions.Multiline;
                     if (!defs.senseCase) opts |= RegexOptions.IgnoreCase;
+                    lastPat = t.s;
                     ms = Regex.Matches(txt.ToString(), t.s, opts);
                     if (ms.Count == 0) xCmd(t.sub);
                     break;
                 case 's':
                     opts = RegexOptions.Multiline;
                     if (!defs.senseCase) opts |= RegexOptions.IgnoreCase;
+                    lastPat = t.s;
                     ms = Regex.Matches(txt.ToString(), t.s, opts);
                     strt = txt.dot;
                     int cnt = 0;
@@ -390,9 +396,11 @@ namespace ss {
                     return new ssAddress(atxt.Length, atxt.Length, atxt);
                 case '/':
                     CheckTxt(atxt);
+                    lastPat = a.s;
                     return Search(new ssAddress(atxt.dot, atxt), a.s, true);
                 case '?':
                     CheckTxt(atxt);
+                    lastPat = a.s;
                     return Search(new ssAddress(atxt.dot, atxt), a.s, false);
                 case ',':
                 case ';':
@@ -424,8 +432,10 @@ namespace ss {
                     if (!rt.txt.Contains(rt.rng)) throw new ssException("address range");
                     return rt;
                 case '/':
+                    lastPat = ar.s;
                     return Search(rt, ar.s, dir == '+');
                 case '?':
+                    lastPat = ar.s;
                     return Search(rt, ar.s, dir == '-');
                 case '0':
                     if (dir == '+')
@@ -439,14 +449,27 @@ namespace ss {
                 }
             }
 
+        public void FindNextDot() {
+            string s = txt.ToString();
+            string t = txt.ToString(txt.dot.r, txt.Length - txt.dot.r);
+            int loc = t.IndexOf(s);
+            if (loc < 0) {
+                t = txt.ToString(0, txt.dot.r);
+                loc = t.IndexOf(s);
+                }
+            else {
+                loc += txt.dot.r;
+                }
+            txt.dot.l = loc;
+            txt.dot.len = s.Length;
+            }
+
 
         ssAddress Search(ssAddress rt, string pat, bool forward) {
             Match m;
             Regex rex;
             int start;
 
-            if (pat == "") pat = lastPat;
-            lastPat = pat;
             string s = rt.txt.ToString(0, rt.txt.Length);
             bool found = true;
             RegexOptions opts = RegexOptions.Multiline;
@@ -544,7 +567,13 @@ namespace ss {
             }
 
 
+        string ssUnescape(string s) {
+            return s.Replace("\\N", txt.Eoln); // \N will allow commands to work across line endings.
+            }
+
+
         string Unescape(string s) {
+            s = ssUnescape(s);
             try {
                 return Regex.Unescape(s);
                 }
