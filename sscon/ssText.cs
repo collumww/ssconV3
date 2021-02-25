@@ -54,7 +54,6 @@ namespace ss {
         bool firstTry;
         public bool cmdaffected;  // the editor uses this to know which windows to update after a command
 
-        int futAdj;
         int adjEdge;
 
         string EOLN;
@@ -385,20 +384,16 @@ namespace ss {
 
 
         public void InitSeq() {
-            futAdj = 0;
-            adjEdge = 0;
+            adjEdge = Length;
             }
 
         public void CheckSeq(ref ssRange r, bool insert) {
-            int da = (insert ? r.len : -r.len);
-            if (r.l < adjEdge) {
+            int newEdge = insert ? r.l : r.r;
+            if (newEdge > adjEdge) { 
                 ed.Undo(1);
                 throw new ssException("changes not in sequence");
                 }
-            if (insert) adjEdge = r.l;
-            else adjEdge = r.r;
-            r.Move(futAdj);
-            futAdj += da;
+            adjEdge = newEdge;
             }
 
         public void ShowInternals() {
