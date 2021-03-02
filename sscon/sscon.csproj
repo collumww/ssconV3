@@ -51,6 +51,7 @@
     <Compile Include="ssDispLine.cs" />
     <Compile Include="ssEd.cs" />
     <Compile Include="ssEdEdit.cs" />
+    <Compile Include="ssEdEscapes.cs" />
     <Compile Include="ssEdExec.cs" />
     <Compile Include="ssEdParse.cs" />
     <Compile Include="ssException.cs" />
