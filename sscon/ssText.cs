@@ -35,7 +35,7 @@ namespace ss {
             tlog = new ssTransLog(ed, this);
             InitSeq();
 
-            /*lwin Remove for non-windowing version
+            /*/wint Remove for non-windowing version
             frms = null;
             frm = null;
             // Remove for non-windowing version */
@@ -56,7 +56,7 @@ namespace ss {
         bool firstTry;
         public bool cmdaffected;  // the editor uses this to know which windows to update after a command
 
-        int adjEdge;
+        ssRange adjEdge;
         public ssTrans seqRoot;
         ssTransLog tlog;
 
@@ -66,7 +66,7 @@ namespace ss {
 
         ssEd ed;
 
-        /*lwin Remove for non-windowed version
+        /*/wint Remove for non-windowed version
         ssForm frm;
         ssForm frms;
         // Remove for non-windowed version */
@@ -77,10 +77,9 @@ namespace ss {
             }
 
         public void Commit() {
-            tlog.LogTrans(ssTrans.Type.dot, tlog.OldDot, "");
+            tlog.FormLogTrans(ssTrans.Type.dot, tlog.OldDot, "");
             ssTrans t = seqRoot.nxt;
             while (t != null) {
-                if (t.typ != ssTrans.Type.rename) CheckSeq(ref t.rng, t.s != null);
                 dot = t.rng;
                 switch (t.typ) {
                     case ssTrans.Type.rename:
@@ -89,11 +88,13 @@ namespace ss {
                         t.s = n;
                         break;
                     case ssTrans.Type.delete:
+                        CheckSeq(ref t.rng, false);
                         t.s = ToString();
                         t.rng = Delete();
                         t.typ = ssTrans.Type.insert;
                         break;
                     case ssTrans.Type.insert:
+                        CheckSeq(ref t.rng, true);
                         t.rng = Insert(t.s);
                         t.s = null;
                         t.typ = ssTrans.Type.delete;
@@ -105,7 +106,7 @@ namespace ss {
                     if (t.typ != ssTrans.Type.rename) dot = t.rng;
                     SyncFormToText();
                     }
-                tlog.LogTrans(t);  // Form keeps from logging ed.log transactions. We don't check it here.
+                tlog.EdLogTrans(t);  // Form keeps from logging ed.log transactions. We don't check it here.
                 t = tt;
                 }
             changeCnt++;
@@ -138,7 +139,7 @@ namespace ss {
             //nonwin Remove for windowed version
             ml += "-";
             // Remove for windowed version */
-            /*lwin Remove for non-windowed version
+            /*/wint Remove for non-windowed version
             ml += frm == null ? "-" : (frm.Nxt == null ? "+" : "*");
             // Remove for non-windowed version */
             ml += ed.encodeEncoding(encoding);
@@ -147,7 +148,7 @@ namespace ss {
             }
 
 
-        /*lwin Remove for non-windowed version
+        /*/wint Remove for non-windowed version
         public void AddForm(ssForm f) {
             f.Nxt = frms;
             frms = f;
@@ -186,7 +187,7 @@ namespace ss {
         public void Rename(string n) {
             nm = n;
             ed.Msg(MenuLine());
-            /*lwin remove for non-windowed version
+            /*/wint remove for non-windowed version
             for (ssForm f = frms; f != null; f = f.Nxt) f.Text = FileName();
             // remove for non-windowed version */
             }
@@ -225,7 +226,7 @@ namespace ss {
             set { nxt = value; }
             }
 
-        /*lwin Remove for non-windowed version
+        /*/wint Remove for non-windowed version
         public ssForm Frms {
             get { return frms; }
             }
@@ -429,17 +430,17 @@ namespace ss {
 
 
         public void InitSeq() {
-            adjEdge = Length;
+            adjEdge = new ssRange(Length, Length);
             seqRoot.nxt = null;
             }
 
         public void CheckSeq(ref ssRange r, bool insert) {
-            int newEdge = insert ? r.l : r.r;
-            if (newEdge > adjEdge) {
+            if (insert) r.r = r.l;
+            if (r.r > adjEdge.l) {
                 ed.Undo(1);
                 throw new ssException("changes not in sequence");
                 }
-            adjEdge = newEdge;
+            adjEdge = r;
             }
 
         public void ShowInternals() {
@@ -449,7 +450,7 @@ namespace ss {
 
 
         public void AdjMarks(int loc, int chg, bool insert) {
-            /*lwin Remove contents of this routine for non-windowing version
+            /*/wint Remove contents of this routine for non-windowing version
             for (ssForm f = frms; f != null; f = f.Nxt) {
                 f.AdjMarks(loc, chg, insert);
                 }
@@ -457,7 +458,7 @@ namespace ss {
             }
 
         public void InvalidateMarks() {
-            /*lwin Remove contents of this routine for non-windowing version
+            /*/wint Remove contents of this routine for non-windowing version
             for (ssForm f = frms; f != null; f = f.Nxt) {
                 f.InvalidateMarks();
                 }
@@ -465,7 +466,7 @@ namespace ss {
             }
 
         public void InvalidateMarksAndChange(int loc) {
-            /*lwin Remove contents of this routine for non-windowing version
+            /*/wint Remove contents of this routine for non-windowing version
             for (ssForm f = frms; f != null; f = f.Nxt) {
                 f.InvalidateMarksAndChange(loc);
                 }
@@ -473,19 +474,19 @@ namespace ss {
             }
 
         public void SyncTextToForm() {
-            /*lwin Remove contents of this routine for non-windowing version
+            /*/wint Remove contents of this routine for non-windowing version
             if (frm != null) frm.FormMarksToText();
             // Remove contents of this routine for non-windowing version */
             }
 
         public void SyncFormToText() {
-            /*lwin Remove contents of this routine for non-windowing version
+            /*/wint Remove contents of this routine for non-windowing version
             if (frm != null) frm.TextMarksToForm(true);
             // Remove contents of this routine for non-windowing version */
             }
 
         public void Activate() {
-            /*lwin Remove contents of this routine for non-windowing version
+            /*/wint Remove contents of this routine for non-windowing version
             if (frm != null) {
                 if (frm.WindowState == System.Windows.Forms.FormWindowState.Minimized)
                     frm.WindowState = System.Windows.Forms.FormWindowState.Normal;
@@ -495,7 +496,7 @@ namespace ss {
             }
 
 
-        /*lwin Remove contents of this routine for non-windowing version
+        /*/wint Remove contents of this routine for non-windowing version
         public void MenuClick(Object sender, EventArgs e) {
             ed.WakeUpText(this);
             if (frms == null) {
@@ -509,14 +510,14 @@ namespace ss {
 
         public void ChangeEoln(string s) {
             EOLN = s;
-            /*lwin Remove contents of this routine for non-windowing version
+            /*/wint Remove contents of this routine for non-windowing version
             for (ssForm f = frms; f != null; f = f.Nxt) f.ReDisplay();
             // Remove contents of this routine for non-windowing version */
             }
 
         public void FixLineLen(int n) {
             fixedLn = n;
-            /*lwin Remove contents of this routine for non-windowing version
+            /*/wint Remove contents of this routine for non-windowing version
             for (ssForm f = frms; f != null; f = f.Nxt) f.ReDisplay();
             // Remove contents of this routine for non-windowing version */
             }

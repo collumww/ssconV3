@@ -17,7 +17,7 @@ namespace ss {
         public string progPunct;
         public bool senseCase;
         public Encoding encoding;
-        /*lwin remove for non-windowed version
+        /*/wint remove for non-windowed version
         public static int defleft = 50;
         public static int deftop = 50;
         public static int defwidth = 600;
@@ -41,7 +41,7 @@ namespace ss {
         public int height;
         // remove for non-windowed version */
 
-        /*lwin remove for non-windowed version
+        /*/wint remove for non-windowed version
         public static string defsFnm = "ssDefs.ini";
         // remove for non-windowed version */
         //nonwin remove for windowed version
@@ -61,7 +61,7 @@ namespace ss {
 
 
         public ssDefaults() {
-            /*lwin remove for non-windowed version
+            /*/wint remove for non-windowed version
             fontNm = new string[fontCnt];
             fontStyle = new FontStyle[fontCnt];
             fontSz = new float[fontCnt];
@@ -84,7 +84,7 @@ namespace ss {
                 progPunct = r.ReadLine();
                 senseCase = System.Convert.ToBoolean(r.ReadLine());
                 encoding = DecodeEncoding(r.ReadLine()); 
-                /*lwin remove for non-windowed version
+                /*/wint remove for non-windowed version
                 fontNum = System.Convert.ToInt32(r.ReadLine());
                 for (int i = 0; i < fontCnt; i++) {
                     fontNm[i] = r.ReadLine();
@@ -112,7 +112,7 @@ namespace ss {
                 progPunct = "!@#$%^&*()`~;:/?[{]}'\",<.>\\|+=-_";
                 senseCase = true;
                 encoding = System.Text.Encoding.UTF8;
-                /*lwin remove for non-windowed version
+                /*/wint remove for non-windowed version
                 fontNum = 0;
                 fontNm[0] = "Courier New";
                 fontStyle[0] = FontStyle.Regular;
@@ -150,7 +150,7 @@ namespace ss {
                 w.WriteLine(progPunct);
                 w.WriteLine(senseCase);
                 w.WriteLine(encoding.EncodingName);
-                /*lwin remove for non-windowed version
+                /*/wint remove for non-windowed version
                 w.WriteLine(fontNum);
                 for (int i = 0; i < fontCnt; i++) {
                     w.WriteLine(fontNm[i]);

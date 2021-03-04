@@ -112,7 +112,7 @@ namespace ss {
                 ParseAndExec(s);
                 Commit();
                 UpdateAffected();
-                /*lwin remove for non-windowed version
+                /*/wint remove for non-windowed version
                 if (txt != null && txt.Frm != null) txt.Frm.CmdShowCursor();
                 if (!log.Ended()) MsgLn("");
                 // remove for non-windowed version */
@@ -149,7 +149,7 @@ namespace ss {
             for (ssText t = txts; t != null; t = t.Nxt) {
                 if (t.cmdaffected) {
                     t.InvalidateMarksAndChange(-1);
-                    ///*lwin Remove for non-windowed version
+                    ///*/wint Remove for non-windowed version
                     //for (ssForm f = t.Frms; f != null; f = f.Nxt) {
                     //    f.AdjOrigin();
                     //    }
@@ -210,7 +210,7 @@ namespace ss {
             if (txt == null) throw new ssException("no current file");
             }
 
-        /*lwin remove for non-windowed version
+        /*/wint remove for non-windowed version
         void CheckFrm() {
             if (txt.Frm == null) throw new ssException("no window for current file");
             }
@@ -424,7 +424,7 @@ namespace ss {
                 case 'T':
                     CheckNoAddr(a);
                     CheckTxt();
-                    /*lwin remove for non-windowed version
+                    /*/wint remove for non-windowed version
                     CheckFrm();
                     // remove for non-windowed version */
                     t = new CTree(a, c);
