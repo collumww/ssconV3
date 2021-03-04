@@ -15,14 +15,14 @@ namespace ss {
             txts = null;
             txt = null;
             prvtxt = null;
-            tlog = new ssTransLog();
+            //tlog = new ssTransLog();
+            curTransId = 0;
             scn = new ssScanner(null, false);
             grouping = 0;
             lastPat = "";
             newfile = 0;
             root = new CTree(null, '\0');
-            seqRoot = new ssTrans(ssTrans.Type.delete, 0, null, null, null);
-            /*/win remove for non-windowed version
+            /*lwin remove for non-windowed version
             log = null;
             // remove for non-windowed version */
             }
@@ -32,9 +32,10 @@ namespace ss {
         string[] args;
         int startWith;
         ssText txts;
-        ssTransLog tlog;
+        //ssTransLog tlog;
+        long curTransId;
         int newfile;
-        /*/win remove for non-windowed version
+        /*lwin remove for non-windowed version
         ssText log;
         // remove for non-windowed version */
 
@@ -73,6 +74,22 @@ namespace ss {
             }
 
 
+        public void NewTrans() {
+            for (ssText t = txts; t != null; t = t.Nxt) t.TLog.InitTrans();
+            iota = 0;
+            }
+
+        public void NewTransId() {
+            curTransId++;
+            }
+
+        public void PrevTransId() {
+            if (curTransId > 0) curTransId--;
+            }
+
+        public long CurTransId {
+            get { return curTransId; }
+            }
 
         public string LastPat {
             get { return lastPat; }
@@ -89,7 +106,7 @@ namespace ss {
         public void NewText() {
             ssText t = new ssText(this, "", null, NewName(), defs.encoding);
             AddText(t);
-            /*/win Remove for non-windowed version
+            /*lwin Remove for non-windowed version
             t.AddForm(new ssForm(this, t));
             t.Frm.Show();
             // Remove for non-windowed version */
@@ -112,7 +129,7 @@ namespace ss {
                 AddText(t);  // t becomes the current text, that is, txt.
                 if (withforms) {
                     txt = t;
-                    /*/win Remove for non-windowed version
+                    /*lwin Remove for non-windowed version
                     t.AddForm(new ssForm(this, t));
                     t.Frm.Show();
                     // Remove for non-windowed version */
@@ -128,7 +145,7 @@ namespace ss {
                 Err("changed file \"" + dtxt.FileName() + "\"");
                 return false;
                 }
-            /*/win remove for non-Windowed version
+            /*lwin remove for non-Windowed version
             if (formsToo) dtxt.DeleteAllForms();
             // remove for non-Windowed version */
             ssText p = null, t = txts;
@@ -136,8 +153,8 @@ namespace ss {
             if (t == null) return true;
             if (p == null) txts = t.Nxt;
             else p.Nxt = t.Nxt;
-            ssTrans.VoidTrans(tlog.Ts, dtxt);
-            ssTrans.VoidTrans(seqRoot.nxt, dtxt);
+            //ssTrans.VoidTrans(tlog.Ts, dtxt);
+            //ssTrans.VoidTrans(seqRoot.nxt, dtxt);
             prvtxt = txt;
             txt = null;
             return true;
@@ -146,7 +163,7 @@ namespace ss {
         public bool DeleteAllTexts() {
             bool all = true;
             for (ssText t = Txts; t != null; t = t.Nxt) {
-                /*/win remove for non-windowed version
+                /*lwin remove for non-windowed version
                 if (t != Log)
                 // remove for non-windowed version */
                     all &= t.DoubleCheck();
@@ -161,7 +178,7 @@ namespace ss {
         public void WakeUpText(ssText t) {
             if (t == null) return;
             prvtxt = txt;
-            /*/win remove for non-windowed version
+            /*lwin remove for non-windowed version
             if (t.Frm != null) {
                 t.Activate();
                 }
@@ -169,7 +186,7 @@ namespace ss {
             // remove for non-windowed version */
                 {
                 txt = t;
-                /*/win remove for non-windowed version
+                /*lwin remove for non-windowed version
                 log.Activate();
                 // remove for non-windowed version */
                 }
@@ -179,7 +196,7 @@ namespace ss {
             if (txts == null || txt == null) return;
             ssText t = txt.Nxt;
             if (t == null) t = txts;
-            /*/win remove for non-windowed version
+            /*lwin remove for non-windowed version
             if (t.Frm == null)
                 // remove for non-windowed version */
                 MsgLn(t.MenuLine());
@@ -188,14 +205,14 @@ namespace ss {
 
         public void PrevText() {
             if (prvtxt == null) return;
-            /*/win remove for non-windowed version
+            /*lwin remove for non-windowed version
             if (prvtxt.Frm == null)
                 // remove for non-windowed version */
                 MsgLn(prvtxt.MenuLine());
             WakeUpText(prvtxt);
             }
 
-        /*/win remove for non-windowed version
+        /*lwin remove for non-windowed version
         public ssText Log {
             get { return log; }
             set { log = value; }
@@ -210,16 +227,16 @@ namespace ss {
             get { return txt; }
             }
 
-        public ssTransLog TLog {
-            get { return tlog; }
-            }
+        //public ssTransLog TLog {
+        //    get { return tlog; }
+        //    }
 
         public void Err(string s) {
             MsgLn("?" + s);
             }
 
         public void MsgLn(string s) {
-            /*/win Remove for non-windowed version
+            /*lwin Remove for non-windowed version
             Msg(s + log.Eoln);
             // Remove for non-windowed version */
             //nonwin Remove for windowed version 
@@ -228,7 +245,7 @@ namespace ss {
             }
 
         public void Msg(string s) {
-            /*/win Remove for non-windowed version
+            /*lwin Remove for non-windowed version
             log.Frm.CmdCursorToEOF();
             log.Frm.Insert(s);
             log.Frm.CmdCursorToEOF();
@@ -262,7 +279,7 @@ namespace ss {
                     Err("arg: " + ex.Message);
                     }
                 }
-            /*/win Remove for non-windowed version
+            /*lwin Remove for non-windowed version
             if (txt != null) {
                 txt.AddForm(new ssForm(this, txt));
                 txt.Frm.Show();

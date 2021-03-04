@@ -11,7 +11,7 @@ using System.Globalization;
 
 namespace ss {
     public partial class ssEd {
-        int Iota;
+        int iota;
         void PostEdDot() {
             txt.SyncFormToText();
         }
@@ -33,7 +33,7 @@ namespace ss {
             if (a != null) {
                 if (a.txt == null) a.txt = txt;
                 WakeUpText(a.txt);
-                /*/win remove for non-windowed version
+                /*lwin remove for non-windowed version
                 log.Activate();  // Bring the damn focus back to the command line.
                 // remove for non-windowed version */
                 txt.dot = a.rng;
@@ -203,7 +203,7 @@ namespace ss {
                     if (t.a == null) { r.l = 0; r.r = txt.Length; }
                     string dta = txt.ToString(r.l, r.len);
                     if (WinWrite(t.s, dta, txt.encoding)) {
-                        if (dta.Length == txt.Length) txt.Changed = false;
+                        if (dta.Length == txt.Length) txt.changeCnt = 0;
                         MsgLn(s + ": #" + dta.Length.ToString());
                     }
                     PostEdDot();
@@ -231,14 +231,14 @@ namespace ss {
                     Change(ShellCmd(t.s, txt.ToString()));
                     break;
                 case 'q':
-                    /*/win Remove for non-windowed version
+                    /*lwin Remove for non-windowed version
                     log.Frm.UpdateDefs();
                     // */
                     defs.SaveDefs(false);
                     if (DeleteAllTexts()) Environment.Exit(0);
                     break;
                 case 'Q':
-                    /*/win Remove for non-windowed version
+                    /*lwin Remove for non-windowed version
                     log.Frm.UpdateDefs();
                     // */
                     defs.SaveDefs(true);
@@ -261,17 +261,17 @@ namespace ss {
                     if (a == null) xNoCmd();
                     break;
                 case 'T':
-                    /*/win  remove for non-windowed version 
+                    /*lwin  remove for non-windowed version 
                     txt.Frm.ChangeTab(t.n);
                     //  remove for non-windowed version */
                     break;
                 case 'L':
-                    /*/win remove for non-windowed version 
+                    /*lwin remove for non-windowed version 
                     txt.ChangeEoln(t.s);
                     //  remove for non-windowed version */
                     break;
                 case 'F':
-                    /*/win remove for non-windowed version 
+                    /*lwin remove for non-windowed version 
                     txt.FixLineLen(t.n);
                     //  remove for non-windowed version */
                     break;
@@ -304,7 +304,7 @@ namespace ss {
                 case 'E':
                     if (txt == null) {
                         defs.encoding = decodeEncoding(t.opt);
-                        /*/win remove for non-windowing version
+                        /*lwin remove for non-windowing version
                         log.encoding = defs.encoding;
                         //   remove for non-windowing version */
                     }
@@ -314,7 +314,7 @@ namespace ss {
                     throw new ssException("unknown command");
             }
             if (a != null) PostEdDot();
-            if (txt != null) txt.dot = levdot;
+            if (txt != null && t.nxt != null) txt.dot = levdot;
             xCmd(t.nxt);
         }
 
@@ -514,8 +514,21 @@ namespace ss {
         }
 
         public void Undo(int n) {
+            ssText t;
+            //long id = 0;
+            //long tid = 0;
             for (; n > 0; n--) {
-                tlog.Undo();
+                //id = 0;
+                //for (t = txts; t != null; t = t.Nxt) {
+                //    if (t.TLog.Ts != null) {
+                //        tid = t.TLog.Ts.id;
+                //        if (tid > id) id = tid;
+                //        }
+                //    }
+                for (t = txts; t != null; t = t.Nxt)
+                    t.TLog.Undo(curTransId);
+                //t.TLog.Undo(id);
+                PrevTransId();
             }
             SyncFormToTextAll();
         }
@@ -569,7 +582,7 @@ namespace ss {
             catch (Exception e) {
                 Err("problem shelling command: \r\n" + e.Message);
             }
-            /*/win remove for non-windowed version
+            /*lwin remove for non-windowed version
             log.Activate();
             // remave for non-windowed version */
             return s;
