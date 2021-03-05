@@ -33,7 +33,7 @@ namespace ss {
             if (a != null) {
                 if (a.txt == null) a.txt = txt;
                 WakeUpText(a.txt);
-                /*/wint remove for non-windowed version
+                /*/win remove for non-windowed version
                 log.Activate();  // Bring the damn focus back to the command line.
                 // remove for non-windowed version */
                 txt.dot = a.rng;
@@ -158,10 +158,11 @@ namespace ss {
                 case 'b':
                     bool fnd = false;
                     for (SList f = t.fs; f != null; f = f.nxt) {
-                        ts = FindText(true, f.s, true, true);
+                        ts = FindText(false, f.s, true, true);
                         if (ts != null) { fnd = true; txt = ts.t; break; }
                         }
                     if (!fnd) throw new ssException("not in menu: \"" + SListJoin(t.fs) + "\"");
+                    MsgLn(txt.MenuLine());
                     WakeUpText(txt);
                     break;
                 case 'f':
@@ -203,7 +204,7 @@ namespace ss {
                     if (t.a == null) { r.l = 0; r.r = txt.Length; }
                     string dta = txt.ToString(r.l, r.len);
                     if (WinWrite(t.s, dta, txt.encoding)) {
-                        if (dta.Length == txt.Length) txt.changeCnt = 0;
+                        if (dta.Length == txt.Length) txt.TLog.changeCnt = 0;
                         MsgLn(s + ": #" + dta.Length.ToString());
                         }
                     PostEdDot();
@@ -231,14 +232,14 @@ namespace ss {
                     Change(ShellCmd(t.s, txt.ToString()));
                     break;
                 case 'q':
-                    /*/wint Remove for non-windowed version
+                    /*/win Remove for non-windowed version
                     log.Frm.UpdateDefs();
                     // */
                     defs.SaveDefs(false);
                     if (DeleteAllTexts()) Environment.Exit(0);
                     break;
                 case 'Q':
-                    /*/wint Remove for non-windowed version
+                    /*/win Remove for non-windowed version
                     log.Frm.UpdateDefs();
                     // */
                     defs.SaveDefs(true);
@@ -261,17 +262,17 @@ namespace ss {
                     if (a == null) xNoCmd();
                     break;
                 case 'T':
-                    /*/wint  remove for non-windowed version 
+                    /*/win  remove for non-windowed version 
                     txt.Frm.ChangeTab(t.n);
                     //  remove for non-windowed version */
                     break;
                 case 'L':
-                    /*/wint remove for non-windowed version 
+                    /*/win remove for non-windowed version 
                     txt.ChangeEoln(t.s);
                     //  remove for non-windowed version */
                     break;
                 case 'F':
-                    /*/wint remove for non-windowed version 
+                    /*/win remove for non-windowed version 
                     txt.FixLineLen(t.n);
                     //  remove for non-windowed version */
                     break;
@@ -304,7 +305,7 @@ namespace ss {
                 case 'E':
                     if (txt == null) {
                         defs.encoding = decodeEncoding(t.opt);
-                        /*/wint remove for non-windowing version
+                        /*/win remove for non-windowing version
                         log.encoding = defs.encoding;
                         //   remove for non-windowing version */
                         }
@@ -579,7 +580,7 @@ namespace ss {
             catch (Exception e) {
                 Err("problem shelling command: \r\n" + e.Message);
                 }
-            /*/wint remove for non-windowed version
+            /*/win remove for non-windowed version
             log.Activate();
             // remave for non-windowed version */
             return s;
