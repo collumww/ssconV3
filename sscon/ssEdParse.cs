@@ -88,8 +88,8 @@ namespace ss {
 
         string SListJoin(SList l) {
             string s = "";
-            while (l != null) { s += l.s + " "; l = l.nxt; }
-            return s;
+            while (l != null) { s += " " + l.s; l = l.nxt; }
+            return s.Substring(1);
             }
 
 
@@ -106,8 +106,6 @@ namespace ss {
             try {
                 ResetAffected();
                 InitAllSeqs();
-                //edDot.txt = txt;
-                //edDot.rng = txt.dot;
                 NewTrans();
                 ParseAndExec(s);
                 Commit();
@@ -127,7 +125,7 @@ namespace ss {
                 InitAllSeqs();
                 SyncFormToTextAll();
                 Err(e.Message);
-                //if (!(e is ssException)) throw e;
+                if (!(e is ssException)) throw e;
                 }
             }
 
@@ -346,6 +344,8 @@ namespace ss {
                 case 's':
                     t = new CTree(a, c);
                     pChar();
+                    if (char.IsDigit(scn.C)) t.n = scn.GetNum();
+                    if (scn.Nothing) t.n = 1;
                     scn.SetDelim(pDelim());
                     scn.GetChar();
                     t.s = SetPat(PreEscape(scn.GetStr()));
@@ -522,7 +522,7 @@ namespace ss {
             if (scn.C == '"') {
                 scn.GetChar();
                 scn.SetDelim('\"');
-                fnm = scn.GetStr();
+                fnm = SetPat(PreEscape(scn.GetStr()));
                 }
             pSkipSp();
             char c = scn.C;
