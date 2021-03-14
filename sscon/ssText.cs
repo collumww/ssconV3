@@ -87,7 +87,7 @@ namespace ss {
         }
 
         public string MenuLine() {
-            string ml = Changed ? "'" : " ";
+            string ml = TLog.Changed ? "'" : " ";
             //nonwin Remove for windowed version
             ml += "-";
             // Remove for windowed version */
@@ -161,10 +161,6 @@ namespace ss {
                 if (value == "") { throw new ssException("invalid EOLN"); }
                 EOLN = value;
             }
-        }
-
-        public bool Changed {
-            get { return TLog.changeCnt != 0; }
         }
 
         public ssText Nxt {
@@ -344,7 +340,7 @@ namespace ss {
 
 
         public bool DoubleCheck() {
-            if (Changed) {
+            if (tlog.Changed) {
                 if (firstTry) {
                     firstTry = false;
                     return false;
@@ -374,10 +370,8 @@ namespace ss {
                     if (didntmove) throw new ssException("address range");
                     else didntmove = true;
                     }
-                //if (head == tail && n - m > 1) throw new ssException("address range");
                 m++;
                 }
-            //if (head != Length && !AtBOLN(head)) throw new ssException("address range");
             return new ssRange(tail, head).Normalize();
             }
 

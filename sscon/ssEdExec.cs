@@ -11,10 +11,25 @@ using System.Globalization;
 
 namespace ss {
     public partial class ssEd {
-        int iota;
+        int one;
+        int zero;
+        int alphaUpper;
+        int alphaLower;
         void PostEdDot() {
             txt.SyncFormToText();
-        }
+            }
+
+
+        public string ToAlphaString(int n, char strt) {
+            string s = "";
+            do {
+                int dig = n % 26;
+                s = (char)(dig + strt) + s;
+                n /= 26;
+                }
+            while (n > 0);
+            return s;
+            }
 
         string[] SListToArray(SList ss) {
             int cnt = 0;
@@ -65,7 +80,7 @@ namespace ss {
                     break;
                 case 'c':
                     if (swallowing) return;
-                    if (t.subs != null) Change(DoSubs("", t.subs));
+                    if (t.subs != null) Change(DoSubs(txt.ToString(), t.subs));
                     else Change(t.s);
                     break;
                 case 't':
@@ -210,7 +225,9 @@ namespace ss {
                     string dta = txt.ToString(r.l, r.len);
                     string lbl = File.Exists(t.s) ? "" : " (new file) ";
                     if (WinWrite(t.s, dta, txt.encoding)) {
-                        if (dta.Length == txt.Length) txt.TLog.changeCnt = 0;
+                        if (dta.Length == txt.Length) {
+                            txt.TLog.RecordSave();
+                            }
                         MsgLn(s + ":" + lbl + "#" + dta.Length.ToString());
                     }
                     PostEdDot();

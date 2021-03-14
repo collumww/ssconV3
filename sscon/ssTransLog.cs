@@ -15,6 +15,8 @@ namespace ss {
             seqRoot = new ssTrans(ssTrans.Type.delete, 0, t.dot, null, null);
             adjEdge = new ssRange(0, 0);
             getnewtrans = true;
+            canconsolidate = true;
+            savepoint = 0;
             olddot = new ssRange();
             rex = new Regex(@"[\w\s]");
             }
@@ -29,7 +31,9 @@ namespace ss {
 
         public void FormLogTrans(ssTrans.Type typ, ssRange r, string s) {
             if (log) {
-                if (ts != null &&
+                curChangeId++;
+                if (canconsolidate &&
+                    ts != null &&
                     ts.typ == ssTrans.Type.delete &&
                     typ == ssTrans.Type.delete &&
                     ts.rng.r == r.l &&
@@ -37,13 +41,15 @@ namespace ss {
                     ts.s != null && rex.IsMatch(ts.s) &&
                     s != null && rex.IsMatch(s) &&
                     ts.s != txt.Eoln &&
-                    s != txt.Eoln) { 
+                    s != txt.Eoln) {
                     ed.PrevTransId();
-                    changeCnt--;
                     ts.rng.r = r.r;
+                    ts.chgid = curChangeId;
                     }
                 else {
                     ts = new ssTrans(typ, ed.CurTransId, r, s, ts);
+                    canconsolidate = true;
+                    ts.chgid = curChangeId;
                     }
                 }
             }
@@ -51,8 +57,10 @@ namespace ss {
         public void EdLogTrans(ssTrans t) {
             if (log) {
                 t.id = ed.CurTransId;
+                t.chgid = curChangeId;
                 t.nxt = ts;
                 ts = t;
+                curChangeId++;
                 }
             }
 
@@ -79,18 +87,17 @@ namespace ss {
                         t.s = null;
                         t.typ = ssTrans.Type.delete;
                         break;
-                }
+                    }
 
                 ssTrans tt = t.nxt; // Grab t.nxt before LogTrans changes it.
                 if (tt == null) {
                     if (t.typ != ssTrans.Type.rename) txt.dot = t.rng;
                     txt.SyncFormToText();
-                }
+                    }
                 EdLogTrans(t);  // Form keeps from logging ed.log transactions. We don't check it here.
                 t = tt;
+                }
             }
-            changeCnt++;
-        }
 
         public void PushTrans(ssTrans t) {
             switch (t.typ) {
@@ -100,11 +107,11 @@ namespace ss {
                 case ssTrans.Type.delete:
                     CheckSeq(ref t.rng, false);
                     break;
-            }
+                }
             BeginTrans();
             t.nxt = seqRoot.nxt;
             seqRoot.nxt = t;
-        }
+            }
 
         public void Undo(long id) {
             if (ts == null) return;
@@ -125,10 +132,11 @@ namespace ss {
                         txt.dot = ts.rng;
                         break;
                     }
+                //curChangeId -= ts.cnt;
                 ts = ts.nxt;
                 }
             log = true;
-            changeCnt--;
+            txt.InvalidateMarks();
             }
 
         public void CheckSeq(ref ssRange r, bool insert) {
@@ -136,9 +144,9 @@ namespace ss {
             if (adjEdge.r > r.l) {
                 txt.dot = olddot;
                 throw new ssException("changes not in sequence");
-            }
+                }
             adjEdge = r;
-        }
+            }
 
         public bool Log {
             get { return log; }
@@ -147,7 +155,7 @@ namespace ss {
 
         public ssTrans Ts {
             get { return ts; }
-                }
+            }
 
         public void InitTrans() {
             getnewtrans = true;
@@ -162,16 +170,32 @@ namespace ss {
             adjEdge.l = 0;
             adjEdge.r = 0;
             seqRoot.nxt = null;
-        }
+            }
+
+
+        public bool Changed {
+            get { return ts == null && savepoint != 0 ||
+                    ts != null && ts.chgid != savepoint; }
+            }
+
+
+        public void RecordSave() {
+            if (ts != null) savepoint = ts.chgid;
+            else savepoint = 0;
+            canconsolidate = false;
+            txt.InvalidateMarks();
+            }
 
         ssEd ed;
         ssText txt;
         ssTrans ts;
         ssRange adjEdge;
-        public long changeCnt;
+        public long curChangeId;
+        long savepoint;
         public ssTrans seqRoot;
         ssRange olddot;
         public bool getnewtrans;
+        public bool canconsolidate;
         bool log;
         Regex rex;
         }
