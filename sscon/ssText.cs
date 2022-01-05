@@ -356,21 +356,23 @@ namespace ss {
 
         public ssRange FindLine(int start, int n, int dir) {
             FindLineDelegate mov = NxtRight;
-            if (dir < 0) mov = NxtLeft;
-            n = Math.Abs(n);
+            int limit = Length;
+            if (dir < 0) {
+                mov = NxtLeft;
+                limit = 0;
+                }
             int tail = start;
             int head = To(AtBOLN, start, dir);
-            if (!AtBOLN(head)) throw new ssException("address range");
-            int m = 0;
-            bool didntmove = false;
-            while (m < n) {
-                tail = head;
-                head = To(AtBOLN, mov(head), dir);
-                if (head == tail) {
-                    if (didntmove) throw new ssException("address range");
-                    else didntmove = true;
+            if (n != 0) {
+                n = Math.Abs(n);
+                do {
+                    tail = head;
+                    head = To(AtBOLN, mov(head), dir);
+                    n--;
                     }
-                m++;
+                while (n > 0 && head != limit);
+                if (n > 0 || !AtBOLN(tail))
+                    throw new ssException("address range");
                 }
             return new ssRange(tail, head).Normalize();
             }
