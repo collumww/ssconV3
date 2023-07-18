@@ -105,11 +105,16 @@ namespace ss {
 
         public void Do(string s) {
             try {
+                ssText lastcurtxt = txt;
                 ResetAffected();
                 InitAllSeqs();
                 NewTrans();
                 ParseAndExec(s);
                 Commit();
+                if (txt != lastcurtxt) {
+                    if (txt != null) txt.cmdaffected = true;
+                    if (lastcurtxt != null) lastcurtxt.cmdaffected = true;
+                    }
                 UpdateAffected();
                 /*/win remove for non-windowed version
                 if (txt != null && txt.Frm != null) txt.Frm.CmdShowCursor();
@@ -410,6 +415,7 @@ namespace ss {
                     t = new CTree(a, c);
                     break;
                 case 'u':
+                case 'U':
                     CheckTxt();
                     t = new CTree(a, c);
                     pChar();
